@@ -21,7 +21,7 @@ Route::get("/adminTrello", [AdminController::class,"trello"]); #Панель А�
 Route::get("/AdminDispetcher", [AdminController::class,"dispetcher"]); #Панель Диспетчер задач Админа 
                                                                                        #Добавление задачы
 Route::get("/AdminController", [AdminController::class,"controller"]); #Панель Контроль задач Админа 
-Route::get("/AdminReports", [AdminController::class,"reports"]); #Панель Контроль задач Админа 
+Route::post("/AdminReports", [AdminController::class,"reports"]); #Панель Контроль задач Админа 
 Route::get("/AdminUserPage", [AdminController::class,"allUsers"]); #Панель Список пользователей для Админа
 Route::get("/AdminNewUser", [AdminController::class,"newUsers"]); #Панель Список новых пользователей для Админа 
 #--------------------Панель Пользователя-----------------------------------
@@ -29,6 +29,9 @@ Route::get("/userReceived", [UserController::class,"kanban"]); #Панель П�
 Route::post("/UpdateStatusUser", [UserController::class,"update"]); #Обновление статуса пользователя
 #--------------------Работа с Задачами-----------------------------------
 Route::post("/NewTask", [TaskController::class,"create"]); #Панель Пользователя все задачи
+Route::post("/UpdateStatusTask", [TaskController::class,"update"]); #Панель Пользователя все задачи
+// Route::post("/statusUpdateReady", [TaskController::class,"update"]); #Панель Пользователя все задачи
+
 
 
 ?>

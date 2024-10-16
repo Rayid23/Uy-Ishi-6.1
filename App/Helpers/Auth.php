@@ -27,12 +27,14 @@ class Auth
     }
 
     public static function create($data){
-        $check = User::WhereCol('email', '=', $data['email']);
+        $check = User::WhereCol('email',  '=',$data['email']);
 
         if(count($check) == 0){
             User::Create($data);
 
-            $_SESSION['Auth'] = (object) $data;;
+            $data = User::WhereCol('email','=',$data['email']);
+
+            $_SESSION['Auth'] = (object) $data[0];
             
             return true;
         }
@@ -47,7 +49,6 @@ class Auth
     public static function attach($data)
     {
         $user = User::attach($data);
-
 
         if ($user) {
             $_SESSION['Auth'] = $user;

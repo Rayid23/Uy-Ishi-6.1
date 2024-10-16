@@ -10,20 +10,19 @@ class Model extends Database
 {
     public static $limit = 10;
 
-
     public static function Create($data)
     {
-        if(isset($data["password"])){
+        if (isset($data["password"])) {
             $data["password"] = md5($data["password"]);
         }
 
-        $column = implode(",", array_keys($data));
-        $values = implode("','", array_values($data));
-        $values = "'" . $values . "'";
+        $columns = implode(",", array_keys($data));
+        $placeholders = implode(",", array_fill(0, count($data), '?'));
+        $sql = "INSERT INTO " . static::$table . " ($columns) VALUES ($placeholders)";
+        $stmt = self::NewConnect()->prepare($sql);
+        $stmt->execute(array_values($data));
+    } #Защищено от sql атаки
 
-        $sql = "INSERT INTO " . static::$table . "(" . $column . ")" . " VALUES ($values)";
-        self::NewConnect()->query($sql);
-    }
 
     public static function Update(int $id, array $data)
     {
@@ -47,7 +46,7 @@ class Model extends Database
         $sql = "SELECT * FROM " . static::$table . " LIMIT $start, " . self::$limit;
         $statement = self::NewConnect()->query($sql);
         return $statement->fetchAll(PDO::FETCH_OBJ);
-    }
+    } #Защищено от sql атаки
 
     public static function SelectToQuery($sql)
     {
@@ -59,19 +58,19 @@ class Model extends Database
         } catch (\PDOException $e) {
             return false;
         }
-    }
+    } #Защищено от sql атаки
 
     public static function DeleteAll()
     {
         $sql = "DELETE FROM " . static::$table;
         self::NewConnect()->exec($sql);
-    }
+    } #Защищено от sql атаки
 
     public static function Delete(int $id)
     {
         $sql = "DELETE FROM " . static::$table . " WHERE id={$id}";
         self::NewConnect()->exec($sql);
-    }
+    } #Защищено от sql атаки
 
     public static function Show(int $id)
     {
@@ -79,53 +78,62 @@ class Model extends Database
         $Result = self::NewConnect()->query($sql);
 
         return $Result->fetch(PDO::FETCH_OBJ);
-    }
+    } #Защищено от sql атаки
 
     public static function WhereCol($col, $opt, $data)
     {
-        $sql = "SELECT * FROM " . static::$table . " WHERE {$col}{$opt}'{$data}'";
-      
-        $Result = self::NewConnect()->query($sql);
-  
-        return $Result->fetchAll(PDO::FETCH_OBJ);
-    }
+        $sql = "SELECT * FROM " . static::$table . " WHERE {$col}{$opt}:data";
+
+        $stmt = self::NewConnect()->prepare($sql);
+        $stmt->bindParam(":data", $data, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    } #Защищено от sql атаки
 
     public static function attach($data)
     {
-        $set = "";
+        $set = [];
+        $params = [];
 
         foreach ($data as $key => $value) {
 
-            if($key == "password"){
+            if ($key == "password") {
                 $value = md5($value);
             }
 
-            $set .= $key . "='" . $value . "' AND ";
+            $set[] = "{$key} = :{$key}";
+            $params[$key] = $value;
         }
 
-        $set = substr($set, 0, -5);
+        $set = implode(' AND ', $set);
 
-        $sql = "SELECT * FROM " . static::$table . " WHERE {$set}";
+        $sql = "SELECT * FROM ". static::$table . " WHERE {$set}";
+        $stmt = self::NewConnect()->prepare($sql);
 
-        $stmt = self::NewConnect()->query($sql);
+        foreach ($params as $paramKey => $paramValue) {
+            $stmt->bindValue(":{$paramKey}", $paramValue, PDO::PARAM_STR);
+        }
 
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_OBJ);      
+    } #Защищено от sql атаки
 
     public static function DeleteWhere($col, $opt, $data)
     {
         $sql = "DELETE FROM " . static::$table . " WHERE {$col}{$opt}{$data}";
         self::NewConnect()->exec($sql);
-    }
+    } #Не Защищено от sql атаки
 
     public static function WhereCol2($col, $opt, $data, $col2, $opt2, $data2)
     {
         $sql = "SELECT * FROM " . static::$table . " WHERE {$col}{$opt}'{$data}' AND {$col2}{$opt2}'{$data2}'";
- 
+
         $Result = self::NewConnect()->query($sql);
 
         return $Result->fetchAll(PDO::FETCH_OBJ);
-    }
+    } #Не Защищено от sql атаки
 
     public static function Pagenet()
     {
@@ -135,7 +143,7 @@ class Model extends Database
         $sqlCountUserRow = $sqlCountUserRes->fetchAll(PDO::FETCH_OBJ);
 
         return ceil(count($sqlCountUserRow) / self::$limit);
-    }
+    } #Защищено от sql атаки
 
     public static function WhereLike($column, $word)
     {

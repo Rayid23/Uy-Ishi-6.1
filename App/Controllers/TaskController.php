@@ -39,4 +39,45 @@ class TaskController
             }
         }
     }
+
+    public function update(){
+        #Использовать switch-case для того чтоб было кароче код!
+
+        if(isset($_POST['progress'])){
+
+            $id = $_POST['task_id'];
+
+            $data = [
+                'status' => 'progress'
+            ];
+
+            Task::Update($id, $data);
+            header('location: /userReceived');
+        }
+        elseif(isset($_POST['ready']))
+        {
+            $id = $_POST['task_id'];
+
+            $data = [
+                'status' => 'ready'
+            ];
+
+            Task::Update($id, $data);
+            header('location: /userReceived');
+        }
+        elseif(isset($_POST['success']))
+        {
+            $id = $_POST['task_id'];
+
+            $data = [
+                'status' => 'success'
+            ];
+
+            Task::Update($id, $data);
+            header('location: /AdminController');
+        }
+        else{
+            header('location: /userReceived');
+        }
+    }
 }

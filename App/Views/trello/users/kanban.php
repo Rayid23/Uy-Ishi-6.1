@@ -31,7 +31,13 @@
                     <?php
                     if ($models != 'Пусто') {
                         $start = 1;
-                        foreach ($models as $userTask) { ?>
+
+                        foreach ($models as $userTask) {
+                            if ($userTask->status != 'send') {
+                                continue;
+                            }
+                    ?>
+
                             <div class="card card-outline ">
 
                                 <div class="card-header ">
@@ -43,8 +49,8 @@
                                         <form action="UpdateStatusTask" method="POST">
                                             <input type="hidden" name="task_id" value="<?= $userTask->id ?>">
 
-                                            <button type="button" class="btn btn-warning " title="Collapse">
-                                            <i class="bi bi-file-plus-fill"></i>
+                                            <button type="submit" name="progress" class="btn btn-warning " title="Collapse">
+                                                <i class="bi bi-file-plus-fill"></i>
                                             </button>
                                         </form>
 
@@ -66,35 +72,68 @@
                     <?php $start++;
                         }
                     }
-
-
                     ?>
 
                 </div>
             </div>
+
             <div class="card card-row card-default">
-                <div class="card-header bg-info">
+
+                <div class="card-header bg-info"> <!--Внутренности card-head-->
                     <h3 class="card-title">
                         В прогрессе
                     </h3>
                 </div>
-                <div class="card-body">
-                    <div class="card card-light card-outline">
-                        <div class="card-header">
-                            <h5 class="text-center">Задача в прогрессе: id-task</h5>
 
-                        </div>
-                        <div class="card-body">
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-                                Aenean commodo ligula eget dolor. Aenean massa.
-                                Cum sociis natoque penatibus et magnis dis parturient montes,
-                                nascetur ridiculus mus.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <div class="card-body"> <!--Внутренности card-body-->
+
+                    <?php
+
+                    if (is_array($models) && !empty($models)) {
+                        foreach ($models as $userTask) {
+                            if ($userTask->status != 'progress') {
+                                continue;
+                            }
+                    ?>
+
+                            <div class="card card-light card-outline">
+                                <div class="card-header ">
+                                    <h4 class="card-title">Задача в прогрессе: <?= $userTask->id ?></h4>
+                                    <div class="card-tools" style="display:flex">
+                                        <a type="button" class="btn btn-primary" style="margin-right: 3px;" data-card-widget="collapse" href="#<?= $start ?>" title="Collapse">
+                                            <i class="fas fa-minus"></i>
+                                        </a>
+                                        <form action="UpdateStatusTask" method="POST">
+                                            <input type="hidden" name="task_id" value="<?= $userTask->id ?>">
+
+                                            <button type="submit" name="ready" class="btn btn-success " title="Collapse">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+                                <div class="card-body text-center">
+                                    <p>
+                                        <?= $userTask->description ?>
+                                    </p>
+                                    <a href="<?= $userTask->image ?>">
+                                        <img src="<?= $userTask->image ?>" width="150px" style="border:2px solid black; border-radius:30px">
+                                    </a>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    } else {
+                        echo "<p>Нет задач в прогрессе.</p>";
+                    }
+                    ?>
+
+                </div> <!--Закрытие card-body-->
+
             </div>
+
             <div class="card card-row card-success">
                 <div class="card-header">
                     <h3 class="card-title">
@@ -102,16 +141,38 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="card card-primary card-outline">
-                        <div class="card-header">
-                            <h5 class="card-title">Готова: </h5>
-                            <div class="card-tools">
-                                <a href="#" class="btn btn-tool">
-                                    <i class="fas fa-pen"></i>
-                                </a>
+                    <?php
+                    if (is_array($models) && !empty($models)) {
+                        foreach ($models as $userTask) {
+                            if ($userTask->status != 'ready') {
+                                continue;
+                            }
+                    ?>
+                            <div class="card card-success card-outline">
+                                <div class="card-header">
+                                    <h5 class="card-title">Готова: <?= $userTask->id ?> задача</h5>
+                                    <div class="card-tools">
+                                        <a type="button" class="btn btn-primary" style="margin-right: 3px;" data-card-widget="collapse" href="#<?= $start ?>" title="Collapse">
+                                            <i class="fas fa-minus"></i>
+                                        </a>
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p>
+                                        <?= $userTask->description ?>
+                                    </p>
+                                    <a href="<?= $userTask->image ?>">
+                                        <img src="<?= $userTask->image ?>" width="150px" style="border:2px solid black; border-radius:30px">
+                                    </a>
+                                </div>
+
                             </div>
-                        </div>
-                    </div>
+                    <?php
+                        }
+                    }
+                    ?>
+
                 </div>
             </div>
             <div class="card card-row card-success">

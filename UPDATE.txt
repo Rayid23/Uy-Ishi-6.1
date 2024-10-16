@@ -1,0 +1,8 @@
+1. Добавить пагенацию
+2. Изменить стиль онлайн чата
+3. Должно работать Менеджмент задач
+4. CRUD Task
+5. Ban user
+6. Mute user
+7. Comments user
+8. cancelation with comments
